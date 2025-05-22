@@ -1,4 +1,4 @@
--- // Kbs TriggerBot \\ --
+-- // Kbs TriggerBot (Ultra Fast) \\ --
 _G.triggerbot = true
 local player = game:GetService("Players").LocalPlayer
 local mouse = player:GetMouse()
@@ -54,7 +54,7 @@ message.Parent = frame
 -- "Don't Show Again" Button
 local button = Instance.new("TextButton")
 button.Size = UDim2.new(1, 2, 0, 30)
-button.Position = UDim2.new(0, 0, 1, -30)
+button.Position = UDim2.new(0, 0, 1, -30) -- perfectly aligned to bottom
 button.Text = "Don't Show again"
 button.TextColor3 = Color3.fromRGB(255, 255, 255)
 button.TextSize = 16
@@ -103,29 +103,30 @@ button.MouseButton1Click:Connect(slideAndFadeOut)
 
 slideAndFadeIn()
 
-game:GetService("RunService").RenderStepped:Connect(function()
-	if _G.triggerbot then
-		local target = nil
-
-		if mouse.Target then
-			local targetParent = mouse.Target.Parent
-			local humanoid = targetParent:FindFirstChildOfClass("Humanoid") or targetParent.Parent:FindFirstChildOfClass("Humanoid")
-
-			if humanoid and humanoid.Health > 0 and targetParent.Name ~= player.Name then
-				target = humanoid
-			end
+-- Ultra-fast TriggerBot logic (RunService.Heartbeat is fastest non-threaded loop)
+game:GetService("RunService").Heartbeat:Connect(function()
+	if not _G.triggerbot then
+		if clicked then
+			mouse1release()
+			clicked = false
 		end
+		return
+	end
 
-		if target then
-			if not clicked then
-				mouse1press()
-				clicked = true
-			end
-		else
-			if clicked then
-				mouse1release()
-				clicked = false
-			end
+	local target = nil
+
+	if mouse.Target then
+		local tp = mouse.Target.Parent
+		local humanoid = tp:FindFirstChildOfClass("Humanoid") or tp.Parent:FindFirstChildOfClass("Humanoid")
+		if humanoid and humanoid.Health > 0 and tp.Name ~= player.Name then
+			target = humanoid
+		end
+	end
+
+	if target then
+		if not clicked then
+			mouse1press()
+			clicked = true
 		end
 	else
 		if clicked then
